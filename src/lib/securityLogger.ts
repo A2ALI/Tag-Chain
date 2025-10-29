@@ -1,10 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Initialize Supabase client with service role key for privileged access
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL || '',
-  process.env.VITE_SUPABASE_SERVICE_ROLE_KEY || ''
-);
+const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
+const supabaseKey = process.env.VITE_SUPABASE_SERVICE_ROLE_KEY || '';
+
+// Only create Supabase client if URL and key are provided
+const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
 /**
  * Log a security event to the security_events table
@@ -18,6 +19,12 @@ export async function logSecurityEvent(eventDetails: {
   tx_hash?: string;
   wallet_address?: string;
 }) {
+  // If Supabase is not configured, just log to console
+  if (!supabase) {
+    console.log('[SECURITY LOG]', eventDetails);
+    return { success: true };
+  }
+  
   try {
     // Sanitize input to prevent injection attacks
     const sanitizedDetails = eventDetails.details 

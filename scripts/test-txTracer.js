@@ -9,7 +9,7 @@ async function testTxTracer() {
   };
   
   try {
-    // Import the txTracer functions
+    // Import the txTracer functions with correct path
     const {
       getHashScanUrl,
       getAccountHashScanUrl,
@@ -17,7 +17,7 @@ async function testTxTracer() {
       getMirrorNodeAccountUrl,
       maskAddress,
       isValidHederaAccountId
-    } = await import('../src/lib/txTracer');
+    } = await import('../src/lib/txTracer.ts');
     
     // Test 1: Test getHashScanUrl function
     console.log('\n📋 Test 1: Testing getHashScanUrl function...');
@@ -247,5 +247,10 @@ async function testTxTracer() {
   }
 }
 
-// Run the test
-testTxTracer();
+// Export the function as default
+export default testTxTracer;
+
+// Run the test if this file is executed directly
+if (import.meta.url === `file://${process.argv[1]}`) {
+  testTxTracer();
+}

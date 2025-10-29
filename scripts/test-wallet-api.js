@@ -231,5 +231,10 @@ async function testWalletAPI() {
   }
 }
 
-// Run the test
-testWalletAPI();
+// Export the function as default
+export default testWalletAPI;
+
+// Run the test if this file is executed directly
+if (import.meta.url === `file://${process.argv[1]}`) {
+  testWalletAPI();
+}

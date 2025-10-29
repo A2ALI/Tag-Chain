@@ -6,7 +6,98 @@ import { v4 as uuidv4 } from 'uuid';
 config();
 
 async function qaWalletConnect() {
-  console.log('🔍 QA Wallet Connect Test');
+  console.log('🔍 QA Wallet Connect Test Suite');
+  console.log('==============================');
+  
+  const qaReport = {
+    task: "Wallet Connect QA Test Suite",
+    timestamp: new Date().toISOString(),
+    tests: {},
+    overall_status: "PENDING"
+  };
+  
+  try {
+    // Run individual test scripts
+    console.log('\n📋 Running individual test scripts...');
+    
+    // Test 1: Wallet API tests
+    console.log('\n📋 Test 1: Running Wallet API tests...');
+    try {
+      const { default: testWalletAPI } = await import('./test-wallet-api.js');
+      const apiResult = await testWalletAPI();
+      qaReport.tests.wallet_api = apiResult ? "PASS" : "FAIL";
+      console.log(`✅ Wallet API tests: ${apiResult ? "PASS" : "FAIL"}`);
+    } catch (error) {
+      console.log(`❌ Wallet API tests failed: ${error.message}`);
+      qaReport.tests.wallet_api = "FAIL";
+    }
+    
+    // Test 2: Security Logger tests
+    console.log('\n📋 Test 2: Running Security Logger tests...');
+    try {
+      const { default: testSecurityLogger } = await import('./test-security-logger.js');
+      const securityResult = await testSecurityLogger();
+      qaReport.tests.security_logger = securityResult ? "PASS" : "FAIL";
+      console.log(`✅ Security Logger tests: ${securityResult ? "PASS" : "FAIL"}`);
+    } catch (error) {
+      console.log(`❌ Security Logger tests failed: ${error.message}`);
+      qaReport.tests.security_logger = "FAIL";
+    }
+    
+    // Test 3: txTracer tests
+    console.log('\n📋 Test 3: Running txTracer tests...');
+    try {
+      const { default: testTxTracer } = await import('./test-txTracer.js');
+      const txTracerResult = await testTxTracer();
+      qaReport.tests.tx_tracer = txTracerResult ? "PASS" : "FAIL";
+      console.log(`✅ txTracer tests: ${txTracerResult ? "PASS" : "FAIL"}`);
+    } catch (error) {
+      console.log(`❌ txTracer tests failed: ${error.message}`);
+      qaReport.tests.tx_tracer = "FAIL";
+    }
+    
+    // Test 4: Integration test
+    console.log('\n📋 Test 4: Running Integration tests...');
+    const integrationResult = await runIntegrationTest();
+    qaReport.tests.integration = integrationResult ? "PASS" : "FAIL";
+    console.log(`✅ Integration tests: ${integrationResult ? "PASS" : "FAIL"}`);
+    
+    // Calculate overall status
+    const passedTests = Object.values(qaReport.tests).filter(result => result === "PASS").length;
+    const totalTests = Object.keys(qaReport.tests).length;
+    qaReport.overall_status = passedTests === totalTests ? "PASS" : "FAIL";
+    
+    console.log(`\n📊 QA Test Suite Results: ${passedTests}/${totalTests} test groups passed`);
+    console.log(`📈 Overall Status: ${qaReport.overall_status}`);
+    
+    // Save QA report
+    const fs = await import('fs');
+    fs.writeFileSync(
+      'reports/wallet-connect-qa-report.json',
+      JSON.stringify(qaReport, null, 2)
+    );
+    console.log('\n📄 QA report saved to reports/wallet-connect-qa-report.json');
+    
+    return qaReport.overall_status === "PASS";
+    
+  } catch (error) {
+    console.error('❌ QA Wallet Connect Test Suite Failed:', error.message);
+    
+    qaReport.overall_status = "FAIL";
+    qaReport.error = error.message;
+    
+    const fs = await import('fs');
+    fs.writeFileSync(
+      'reports/wallet-connect-qa-report.json',
+      JSON.stringify(qaReport, null, 2)
+    );
+    
+    return false;
+  }
+}
+
+async function runIntegrationTest() {
+  console.log('🔍 Running Integration Test');
   console.log('========================');
   
   // Initialize Supabase client
@@ -93,14 +184,19 @@ async function qaWalletConnect() {
     await supabase.from('users').delete().eq('id', testUserId);
     console.log('✅ Test data cleaned up');
     
-    console.log('\n🎉 QA Wallet Connect Test Completed Successfully!');
+    console.log('\n✅ Integration Test Completed Successfully!');
     return true;
     
   } catch (error) {
-    console.error('❌ QA Wallet Connect Test Failed:', error.message);
+    console.error('❌ Integration Test Failed:', error.message);
     return false;
   }
 }
 
-// Run the QA test
-qaWalletConnect();
+// Export the function so it can be imported
+export default qaWalletConnect;
+
+// Run the QA test suite if this file is executed directly
+if (import.meta.url === `file://${process.argv[1]}`) {
+  qaWalletConnect();
+}

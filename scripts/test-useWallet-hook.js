@@ -9,27 +9,6 @@ global.React = {
 console.log('🔍 Testing useWallet Hook');
 console.log('======================');
 
-// Mock the useAuth hook
-jest.mock('../src/hooks/useAuth', () => ({
-  useAuth: () => ({
-    user: { id: 'test-user-id' }
-  })
-}));
-
-// Mock localStorage
-global.localStorage = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn()
-};
-
-// Mock fetch
-global.fetch = jest.fn(() =>
-  Promise.resolve({
-    json: () => Promise.resolve({ success: true, wallet: { onchain_address: '0.0.1234567' } })
-  })
-);
-
 async function testUseWalletHook() {
   let testResults = {
     timestamp: new Date().toISOString(),
@@ -175,5 +154,10 @@ async function testUseWalletHook() {
   }
 }
 
-// Run the test
-testUseWalletHook();
+// Export the function as default
+export default testUseWalletHook;
+
+// Run the test if this file is executed directly
+if (import.meta.url === `file://${process.argv[1]}`) {
+  testUseWalletHook();
+}

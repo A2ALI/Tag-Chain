@@ -46,8 +46,8 @@ async function testSecurityLogger() {
     // Test 1: Test logSecurityEvent function
     console.log('\n📋 Test 1: Testing logSecurityEvent function...');
     try {
-      // Import the security logger functions
-      const { logSecurityEvent } = await import('../src/lib/securityLogger');
+      // Import the security logger functions with correct path
+      const { logSecurityEvent } = await import('../src/lib/securityLogger.ts');
       
       // Test logging a security event
       const result = await logSecurityEvent({
@@ -82,7 +82,7 @@ async function testSecurityLogger() {
     // Test 2: Test logWalletConnect function
     console.log('\n📋 Test 2: Testing logWalletConnect function...');
     try {
-      const { logWalletConnect } = await import('../src/lib/securityLogger');
+      const { logWalletConnect } = await import('../src/lib/securityLogger.ts');
       
       // Test logging a wallet connect event
       const result = await logWalletConnect(testUserId, '0.0.1234567', 'hashpack');
@@ -110,7 +110,7 @@ async function testSecurityLogger() {
     // Test 3: Test logWalletDisconnect function
     console.log('\n📋 Test 3: Testing logWalletDisconnect function...');
     try {
-      const { logWalletDisconnect } = await import('../src/lib/securityLogger');
+      const { logWalletDisconnect } = await import('../src/lib/securityLogger.ts');
       
       // Test logging a wallet disconnect event
       const result = await logWalletDisconnect(testUserId, '0.0.1234567');
@@ -138,7 +138,7 @@ async function testSecurityLogger() {
     // Test 4: Test logFailedWalletConnect function
     console.log('\n📋 Test 4: Testing logFailedWalletConnect function...');
     try {
-      const { logFailedWalletConnect } = await import('../src/lib/securityLogger');
+      const { logFailedWalletConnect } = await import('../src/lib/securityLogger.ts');
       
       // Test logging a failed wallet connect event
       const result = await logFailedWalletConnect(testUserId, 'Test error message', 1);
@@ -249,5 +249,10 @@ async function testSecurityLogger() {
   }
 }
 
-// Run the test
-testSecurityLogger();
+// Export the function as default
+export default testSecurityLogger;
+
+// Run the test if this file is executed directly
+if (import.meta.url === `file://${process.argv[1]}`) {
+  testSecurityLogger();
+}
