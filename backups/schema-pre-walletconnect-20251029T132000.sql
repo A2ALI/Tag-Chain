@@ -1,0 +1,17 @@
+-- Tag Chain Schema Backup
+-- Generated on: 2025-10-29T13:20:43.688Z
+
+-- Table: users (3 rows)
+-- Table: farms (3 rows)
+-- Table: animals (0 rows)
+-- Table: transactions (0 rows)
+-- Table: certificates (0 rows)
+-- Table: ews_forecasts (3 rows)
+-- Table: ews_alerts (2 rows)
+-- Table: ews_subscriptions (1 rows)
+-- Table: ews_disease_risk (0 rows)
+-- Table: ews_disease_rules (6 rows)
+-- Table: ews_outbox (0 rows)
+-- Table: onchain_inbound_events (0 rows)
+-- Table: onchain_withdrawals (0 rows)
+-- Table: security_events (0 rows)
