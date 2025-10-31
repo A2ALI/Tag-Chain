@@ -15,9 +15,4 @@ export default defineConfig({
   optimizeDeps: {
     include: ['buffer'],
   },
-  build: {
-    rollupOptions: {
-      external: ['crypto'], // Externalize crypto module for server-side functions
-    }
-  }
 });

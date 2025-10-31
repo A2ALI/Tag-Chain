@@ -64,12 +64,12 @@ export default function CertificatePage({ onNavigate, onLogout }: CertificatePag
         description,
         issuedAt: new Date().toISOString()
       };
-      
-      // Generate hash using certificateUtils
-      const hash = generateCertHash(certData);
-      
+
+      // Generate hash using certificateUtils (now async)
+      const hash = await generateCertHash(certData);
+
       alert(`Certificate request submitted for animal ${animalId} with hash: ${hash.substring(0, 16)}...`);
-      
+
       // In a real app, this would call an API to submit the request
       setActiveView('history');
     } catch (error) {
@@ -94,10 +94,10 @@ export default function CertificatePage({ onNavigate, onLogout }: CertificatePag
         issuedAt: new Date().toISOString(),
         approved: true
       };
-      
-      // Generate hash using certificateUtils
-      const hash = generateCertHash(certData);
-      
+
+      // Generate hash using certificateUtils (now async)
+      const hash = await generateCertHash(certData);
+
       // Log the certificate hash on Hedera consensus service
       const transactionId = await logCertificateHash(hash, `Certificate for animal ${request.animalId}`);
       
