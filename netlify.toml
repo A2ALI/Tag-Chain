@@ -1,0 +1,38 @@
+# Netlify Configuration for Tag Chain
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+[build.environment]
+  # Whitelist client-safe environment variables that are intentionally embedded in build output
+  # These are public values that are safe to expose in the browser (VITE_* prefix means client-side)
+  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_URL,VITE_SUPABASE_ANON_KEY,VITE_HEDERA_NETWORK,VITE_HEDERA_PUBLIC_KEY,VITE_HEDERA_TOPIC_ANIMALS,VITE_HEDERA_TOPIC_CERTS,VITE_HEDERA_TOPIC_USERS,VITE_HEDERA_TOPIC_ESCROW,VITE_TAGUSD_TOKEN_ID,VITE_HEDERA_CONSENSUS_TOPIC_ID,VITE_HEDERA_ESCROW_CONTRACT_ID,VITE_FLW_PUBLIC_KEY,COINGECKO_FALLBACK_URL,WALLET_CONNECT_REDIRECT_URL,VITE_HEDERA_GAS_LIMIT,VITE_HEDERA_MAX_TX_FEE"
+
+# Redirect rules
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Headers for security
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+
+# Cache static assets
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
