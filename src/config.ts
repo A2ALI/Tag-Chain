@@ -2,12 +2,15 @@
 
 /**
  * Application Configuration
- * 
+ *
  * This file exports environment variables that are safe to use in the browser.
  * All variables prefixed with VITE_ are bundled into the client-side code.
- * 
+ *
  * IMPORTANT: Never put server secrets (like SUPABASE_SERVICE_ROLE_KEY) here!
  * Server secrets should only be used in Netlify Functions.
+ *
+ * NOTE: Environment variables must be configured in Netlify dashboard.
+ * See NETLIFY_SETUP.md for deployment instructions.
  */
 
 export const config = {
