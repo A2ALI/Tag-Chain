@@ -1,46 +1,37 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from './useAuth';
+import { supabase } from '../lib/supabaseClient';
 
-// Mock HashConnect for now - we'll replace this with the actual implementation
-const mockHashConnect = {
-  init: async () => {
-    console.log('Initializing HashConnect (mock)');
-    return {
-      pairingString: 'mock-pairing-string',
-      hc: { topic: 'mock-topic' }
-    };
-  },
-  connect: async (pairingString: string) => {
-    console.log('Connecting with HashConnect (mock)');
-    return ['0.0.1234567']; // Mock account ID
+// Dynamically import HashConnect only when needed to avoid issues in SSR
+let HashConnect: any = null;
+let BladeSDK: any = null;
+
+// Initialize HashConnect SDK
+const initHashConnect = async () => {
+  if (!HashConnect) {
+    try {
+      const hashconnectModule = await import('hashconnect');
+      HashConnect = hashconnectModule.HashConnect;
+    } catch (error) {
+      console.error('Failed to load HashConnect SDK:', error);
+      throw new Error('HashPack wallet is not available');
+    }
   }
+  return HashConnect;
 };
 
-// Mock Blade SDK for now - we'll replace this with the actual implementation
-const mockBlade = {
-  init: async () => {
-    console.log('Initializing Blade (mock)');
-    return true;
-  },
-  connect: async () => {
-    console.log('Connecting with Blade (mock)');
-    return { accounts: ['0.0.2345678'] }; // Mock account ID
+// Initialize Blade SDK
+const initBlade = async () => {
+  if (!BladeSDK) {
+    try {
+      const bladeModule = await import('@bladelabs/blade-web3.js');
+      BladeSDK = bladeModule.Blade;
+    } catch (error) {
+      console.error('Failed to load Blade SDK:', error);
+      throw new Error('Blade wallet is not available');
+    }
   }
-};
-
-// Mock WalletConnect for now - we'll replace this with the actual implementation
-const mockWalletConnect = {
-  init: async () => {
-    console.log('Initializing WalletConnect (mock)');
-    return {
-      uri: 'mock-uri',
-      connector: { connected: true }
-    };
-  },
-  connect: async () => {
-    console.log('Connecting with WalletConnect (mock)');
-    return ['0.0.3456789']; // Mock account ID
-  }
+  return BladeSDK;
 };
 
 export const useWallet = () => {
@@ -53,30 +44,48 @@ export const useWallet = () => {
 
   // Check if user has a linked wallet on mount
   useEffect(() => {
-    if (user) {
+    if (user?.id) {
+      console.log('Supabase user:', user);
+      console.log('Headers check:', import.meta.env.VITE_SUPABASE_ANON_KEY ? 'Key found' : 'Key missing');
       fetchLinkedWallet();
     }
   }, [user]);
 
   // Fetch linked wallet from backend
   const fetchLinkedWallet = async () => {
+    // Only call fetch functions after confirming user?.id exists
+    if (!user?.id) {
+      console.log('No user ID found, skipping wallet fetch');
+      return;
+    }
+    
     try {
-      const response = await fetch('/api/wallet/get-linked-wallet', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('supabase.auth.token')}`
+      // Fetch user data directly from Supabase
+      const { data: userData, error } = await supabase
+        .from('users')
+        .select('wallet_address, wallet_type')
+        .eq('id', user.id)
+        .single();
+      
+      if (error) {
+        console.error('Failed to fetch linked wallet:', error);
+        return;
+      }
+      
+      try {
+        
+        if (userData && userData.wallet_address) {
+          setLinkedAddress(userData.wallet_address);
+          setProviderName(userData.wallet_type || null);
+          setIsConnected(true);
+        } else {
+          setLinkedAddress(null);
+          setProviderName(null);
+          setIsConnected(false);
         }
-      });
-      
-      const data = await response.json();
-      
-      if (data.success && data.linked) {
-        setLinkedAddress(data.wallet.onchain_address);
-        setProviderName(data.wallet.wallet_type);
-        setIsConnected(true);
-      } else {
-        setLinkedAddress(null);
-        setProviderName(null);
-        setIsConnected(false);
+      } catch (jsonError) {
+        console.error('Error parsing linked wallet JSON:', jsonError);
+        setError('Failed to parse wallet information');
       }
     } catch (err) {
       console.error('Error fetching linked wallet:', err);
@@ -86,7 +95,9 @@ export const useWallet = () => {
 
   // Connect wallet
   const connect = async (provider: 'hashpack' | 'blade' | 'walletconnect') => {
-    if (!user) {
+    // Only call fetch functions after confirming user?.id exists
+    if (!user?.id) {
+      console.log('No user ID found, skipping wallet connect');
       setError('User not authenticated');
       return;
     }
@@ -105,34 +116,53 @@ export const useWallet = () => {
       // Connect based on provider
       switch (provider) {
         case 'hashpack':
-          // In a real implementation, we would use the actual HashConnect SDK
-          // const hashconnect = await mockHashConnect.init();
-          // const accounts = await mockHashConnect.connect(hashconnect.pairingString);
-          // account = accounts[0];
-          
-          // For now, using mock
-          account = '0.0.1234567';
+          // Use real HashConnect SDK
+          try {
+            const HashConnectClass = await initHashConnect();
+            const hashconnect = new HashConnectClass();
+            
+            // Initialize HashConnect
+            await hashconnect.init({
+              name: process.env.HASHCONNECT_APP_METADATA_NAME || 'TagChain',
+              description: process.env.HASHCONNECT_APP_METADATA_DESCRIPTION || 'TagChain Web DApp',
+              url: process.env.HASHCONNECT_APP_METADATA_URL || 'https://tagchain.app',
+              icon: process.env.HASHCONNECT_APP_METADATA_ICON || 'https://tagchain.app/icon.png'
+            });
+            
+            // Connect to wallet
+            const accounts = await hashconnect.connect();
+            if (accounts && accounts.length > 0) {
+              account = accounts[0];
+            }
+          } catch (hashpackError) {
+            console.error('Error connecting with HashPack:', hashpackError);
+            throw new Error('Failed to connect with HashPack wallet');
+          }
           break;
           
         case 'blade':
-          // In a real implementation, we would use the actual Blade SDK
-          // await mockBlade.init();
-          // const bladeResult = await mockBlade.connect();
-          // account = bladeResult.accounts[0];
-          
-          // For now, using mock
-          account = '0.0.2345678';
+          // Use real Blade SDK
+          try {
+            const BladeClass = await initBlade();
+            const blade = new BladeClass();
+            
+            // Initialize Blade
+            await blade.init();
+            
+            // Connect to wallet
+            const bladeResult = await blade.connect();
+            if (bladeResult && bladeResult.accounts && bladeResult.accounts.length > 0) {
+              account = bladeResult.accounts[0];
+            }
+          } catch (bladeError) {
+            console.error('Error connecting with Blade:', bladeError);
+            throw new Error('Failed to connect with Blade wallet');
+          }
           break;
           
         case 'walletconnect':
-          // In a real implementation, we would use the actual WalletConnect SDK
-          // const wc = await mockWalletConnect.init();
-          // const accounts = await mockWalletConnect.connect();
-          // account = accounts[0];
-          
-          // For now, using mock
-          account = '0.0.3456789';
-          break;
+          // WalletConnect implementation would go here
+          throw new Error('WalletConnect not yet implemented');
           
         default:
           throw new Error('Invalid provider');
@@ -148,28 +178,23 @@ export const useWallet = () => {
         throw new Error('Invalid account format');
       }
 
-      // Call backend API to link wallet
-      const response = await fetch('/api/wallet/connect', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('supabase.auth.token')}`
-        },
-        body: JSON.stringify({
-          provider,
-          account
+      // Update user wallet information in Supabase
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({ 
+          wallet_address: account,
+          wallet_type: provider
         })
-      });
+        .eq('id', user.id);
 
-      const data = await response.json();
-
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to link wallet');
+      if (updateError) {
+        console.error('Failed to link wallet:', updateError);
+        throw new Error('Failed to link wallet');
       }
 
       // Update state
-      setLinkedAddress(data.user.onchain_address);
-      setProviderName(data.user.wallet_type);
+      setLinkedAddress(account);
+      setProviderName(provider);
       setIsConnected(true);
 
       // Store in localStorage for persistence
@@ -189,7 +214,9 @@ export const useWallet = () => {
 
   // Disconnect wallet
   const disconnect = async () => {
-    if (!user) {
+    // Only call fetch functions after confirming user?.id exists
+    if (!user?.id) {
+      console.log('No user ID found, skipping wallet disconnect');
       setError('User not authenticated');
       return;
     }
@@ -198,18 +225,18 @@ export const useWallet = () => {
     setError(null);
 
     try {
-      // Call backend API to unlink wallet
-      const response = await fetch('/api/wallet/disconnect', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('supabase.auth.token')}`
-        }
-      });
+      // Update user wallet information in Supabase
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({ 
+          wallet_address: null,
+          wallet_type: null
+        })
+        .eq('id', user.id);
 
-      const data = await response.json();
-
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to unlink wallet');
+      if (updateError) {
+        console.error('Failed to disconnect wallet:', updateError);
+        throw new Error('Failed to disconnect wallet');
       }
 
       // Update state

@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Initialize Supabase client with service role key for privileged access
-const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
-const supabaseKey = process.env.VITE_SUPABASE_SERVICE_ROLE_KEY || '';
+const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
 // Only create Supabase client if URL and key are provided
 const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;

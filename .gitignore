@@ -1,0 +1,261 @@
+##############################################################################
+# Tag Chain - Hedera Africa Hackathon Submission
+# Optimized .gitignore for public repository
+# Last Updated: 2025-10-31
+##############################################################################
+
+#=============================================================================
+# SECURITY - Environment Variables & Credentials
+#=============================================================================
+# Never commit secrets or credentials
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.backup*
+.env.clean
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+secrets.json
+
+# Keep template for setup
+!.env.example
+
+#=============================================================================
+# DEPENDENCIES
+#=============================================================================
+node_modules/
+.pnp
+.pnp.js
+netlify/functions/node_modules/
+
+#=============================================================================
+# BUILD OUTPUTS
+#=============================================================================
+dist/
+build/
+.vite/
+.cache/
+out/
+*.tsbuildinfo
+
+#=============================================================================
+# TESTING & COVERAGE
+#=============================================================================
+coverage/
+.nyc_output/
+*.test.js.snap
+*.spec.js.snap
+
+#=============================================================================
+# LOGS
+#=============================================================================
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+logs/
+scripts/logs/
+
+#=============================================================================
+# TEMPORARY FILES
+#=============================================================================
+*.tmp
+*.temp
+.tmp/
+.temp/
+*.swp
+*.swo
+*~
+
+#=============================================================================
+# EDITOR & IDE
+#=============================================================================
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.settings/
+*.code-workspace
+
+#=============================================================================
+# OPERATING SYSTEM
+#=============================================================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+Desktop.ini
+ehthumbs.db
+
+# Linux
+*~
+
+#=============================================================================
+# PACKAGE MANAGERS
+#=============================================================================
+pnpm-lock.yaml
+yarn.lock
+# Keep package-lock.json for reproducible builds
+# Uncomment below if using yarn or pnpm exclusively
+# package-lock.json
+
+#=============================================================================
+# PYTHON (for utility scripts)
+#=============================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+
+#=============================================================================
+# NETLIFY
+#=============================================================================
+.netlify/
+
+#=============================================================================
+# SUPABASE
+#=============================================================================
+.supabase/
+
+#=============================================================================
+# DEVELOPMENT & TESTING ARTIFACTS
+#=============================================================================
+dev-mocks/
+mocks/
+fixtures/
+
+#=============================================================================
+# REPORTS & VERIFICATION OUTPUTS
+#=============================================================================
+# Exclude all reports directory
+reports/
+
+# Exclude all JSON files except essential configs
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+!tsconfig.*.json
+
+#=============================================================================
+# BACKUPS
+#=============================================================================
+backups/
+*.backup
+*.backup.*
+*.bak
+*.old
+
+#=============================================================================
+# INTERNAL DOCUMENTATION (Exclude from public repo)
+#=============================================================================
+# Exclude all markdown files by default
+*.md
+
+# Keep essential public documentation
+!README.md
+!src/Attributions.md
+
+# Explicitly exclude internal docs
+TAG_CHAIN_PRD.md
+src/TAG_CHAIN_PRD.md
+src/Guidelines.md
+HEDERA_AFRICA_HACKATHON_CHECKLIST.md
+*_SUMMARY.md
+*_STATUS_REPORT.md
+*_FIXES*.md
+bugs*.md
+REMAINING_*.md
+Tagchainprd*.md
+TagChainPRD*.md
+TAGCHAIN_*.md
+docs/*.md
+!docs/README.md
+
+#=============================================================================
+# NON-ESSENTIAL SCRIPTS (Keep only deployment scripts)
+#=============================================================================
+# Exclude test scripts
+scripts/test-*.js
+scripts/test-*.ts
+
+# Exclude debug scripts
+scripts/debug-*.js
+scripts/debug-*.ts
+
+# Exclude temporary scripts
+scripts/temp-*.js
+scripts/temp-*.ts
+
+# Exclude verification scripts
+scripts/verify-*.js
+scripts/verify-*.ts
+
+# Exclude check scripts
+scripts/check-*.js
+scripts/check-*.ts
+
+# Exclude QA scripts
+scripts/qa-*.js
+scripts/qa-*.ts
+
+# Exclude run scripts
+scripts/run-*.js
+scripts/run-*.ts
+
+# Exclude phase scripts
+scripts/phase-*.js
+scripts/phase-*.ts
+
+# Exclude utility scripts
+scripts/detect-*.js
+scripts/dump-*.js
+scripts/list-*.js
+scripts/populate-*.js
+scripts/rollback-*.js
+scripts/schema-*.js
+scripts/simple-*.js
+scripts/comprehensive-*.js
+scripts/final-*.js
+scripts/lint-*.js
+scripts/validate-*.js
+scripts/backup-*.js
+scripts/create-tables-*.js
+scripts/create-ews-*.js
+
+# Exclude demo and seed scripts
+scripts/db-test.js
+scripts/seed-demo.ts
+scripts/demo-*.ts
+scripts/demo-*.js
+scripts/stage*.ts
+
+# KEEP: Essential deployment scripts for judges
+!scripts/deploy-hedera-assets.ts
+!scripts/deploy-escrow-contract.ts
+!scripts/create-hcs-topics.ts
+
+#=============================================================================
+# PATCHES & DIFFS
+#=============================================================================
+*.patch
+*.diff
+
+#=============================================================================
+# END OF .gitignore
+#=============================================================================
